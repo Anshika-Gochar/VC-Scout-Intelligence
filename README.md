@@ -183,6 +183,4 @@ vc-scout-app/
 1. Build the frontend: `cd Frontend/Vc-Scout && npm run build`
 2. Deploy the `dist` folder to any static hosting
 
-## License
 
-MIT
