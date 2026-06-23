@@ -64,7 +64,7 @@ export default function CompanyProfile() {
 
   const checkEnrichment = async (companyId) => {
     try {
-      const res = await API.get(`/enrichment/${companyId}`);
+      const res = await API.get(`/enrich/${companyId}`);
       if (res.data) setEnrichment(res.data);
     } catch (e) {
       // No enrichment yet

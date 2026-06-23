@@ -1,93 +1,101 @@
 import express from "express";
 import Company from "../models/Company.js";
+import asyncWrapper from "../middleware/asyncWrapper.js";
 
 const router = express.Router();
 
-// Get all companies with search and filters
-router.get("/", async (req, res) => {
-  try {
+// ── GET /api/companies — list with search, filters, pagination ──────────────
+router.get(
+  "/",
+  asyncWrapper(async (req, res) => {
     const { search, industry, funding, location, page = 1, limit = 10 } = req.query;
-    
+
     const query = {};
-    
+
     if (search) {
       query.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { industry: { $regex: search, $options: 'i' } }
+        { name: { $regex: search, $options: "i" } },
+        { industry: { $regex: search, $options: "i" } },
       ];
     }
-    
-    if (industry && industry !== "All") {
-      query.industry = industry;
-    }
-    
-    if (funding && funding !== "All") {
-      query.funding = funding;
-    }
-    
-    if (location && location !== "All") {
-      query.location = location;
-    }
-    
+    if (industry && industry !== "All") query.industry = industry;
+    if (funding && funding !== "All") query.funding = funding;
+    if (location && location !== "All") query.location = location;
+
     const skip = (parseInt(page) - 1) * parseInt(limit);
-    
+
     const [companies, total] = await Promise.all([
       Company.find(query).skip(skip).limit(parseInt(limit)),
-      Company.countDocuments(query)
+      Company.countDocuments(query),
     ]);
-    
-    res.json({ companies, total });
-  } catch (error) {
-    res.status(500).json({ error: "Failed to fetch companies" });
-  }
-});
 
-// Get single company
-router.get("/:id", async (req, res) => {
-  try {
+    res.json({ companies, total });
+  })
+);
+
+// ── GET /api/companies/:id — single company ────────────────────────────────
+router.get(
+  "/:id",
+  asyncWrapper(async (req, res) => {
     const company = await Company.findById(req.params.id);
     if (!company) {
       return res.status(404).json({ error: "Company not found" });
     }
     res.json(company);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to fetch company" });
-  }
-});
+  })
+);
 
-// Create company
-router.post("/", async (req, res) => {
-  try {
+// ── POST /api/companies — create company ───────────────────────────────────
+router.post(
+  "/",
+  asyncWrapper(async (req, res) => {
+    const { name, website } = req.body;
 
-    const existing = await Company.findOne({ website: req.body.website });
-    if (existing) {
-      return res.status(200).json(existing); // Return existing instead of error
+    if (!name || !name.trim()) {
+      return res.status(400).json({ error: "name is required" });
     }
+    if (!website || !website.trim()) {
+      return res.status(400).json({ error: "website is required" });
+    }
+
+    // Return existing company instead of creating a duplicate
+    if (website) {
+      const existing = await Company.findOne({ website });
+      if (existing) {
+        return res.status(200).json(existing);
+      }
+    }
+
     const company = await Company.create(req.body);
     res.status(201).json(company);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to create company" });
-  }
-});
+  })
+);
 
-// Update company
-router.put("/:id", async (req, res) => {
-  try {
-    const company = await Company.findByIdAndUpdate(req.params.id, req.body, { new: true });
+// ── PUT /api/companies/:id — update company ────────────────────────────────
+router.put(
+  "/:id",
+  asyncWrapper(async (req, res) => {
+    const company = await Company.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+    if (!company) {
+      return res.status(404).json({ error: "Company not found" });
+    }
     res.json(company);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to update company" });
-  }
-});
+  })
+);
 
-// Delete company
-router.delete("/:id", async (req, res) => {
-  try {
-    await Company.findByIdAndDelete(req.params.id);
+// ── DELETE /api/companies/:id — delete company ─────────────────────────────
+router.delete(
+  "/:id",
+  asyncWrapper(async (req, res) => {
+    const company = await Company.findByIdAndDelete(req.params.id);
+    if (!company) {
+      return res.status(404).json({ error: "Company not found" });
+    }
     res.json({ message: "Company deleted" });
-  } catch (error) {
-    res.status(500).json({ error: "Failed to delete company" });
-  }
-});
+  })
+);
 
 export default router;

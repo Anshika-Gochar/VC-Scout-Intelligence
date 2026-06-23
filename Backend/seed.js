@@ -158,7 +158,7 @@ const companies = [
     tags: ["Data", "Integration"]
   },
   {
-    name: " Gusto",
+    name: "Gusto",
     website: "https://gusto.com",
     industry: "Fintech",
     location: "San Francisco",

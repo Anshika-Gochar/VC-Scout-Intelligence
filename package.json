@@ -1,0 +1,12 @@
+{
+  "name": "vc-scout-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "install-all": "npm install --prefix Backend && npm install --prefix Frontend/Vc-Scout",
+    "build": "npm run build --prefix Frontend/Vc-Scout",
+    "start:backend": "npm start --prefix Backend",
+    "dev:backend": "npm run dev --prefix Backend",
+    "dev:frontend": "npm run dev --prefix Frontend/Vc-Scout"
+  }
+}

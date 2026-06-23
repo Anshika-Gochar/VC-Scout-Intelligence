@@ -109,8 +109,8 @@ const companiesArray = Array.isArray(companies) ? companies : (companies.compani
     );
   }
 
-  const industries = [...new Set(companies.map((c) => c.industry).filter(Boolean))].filter(ind => ind && ind !== "Analyzing...");
-  const locations = [...new Set(companies.map((c) => c.location).filter(Boolean))];
+  const industries = [...new Set(companiesArray.map((c) => c.industry).filter(Boolean))].filter(ind => ind && ind !== "Analyzing...");
+  const locations = [...new Set(companiesArray.map((c) => c.location).filter(Boolean))];
 
   return (
     <div className="space-y-6">
@@ -177,18 +177,6 @@ const companiesArray = Array.isArray(companies) ? companies : (companies.compani
                     <div>
                       <p className="font-medium text-slate-900 group-hover:text-indigo-600 transition-colors">{company.name}</p>
                       <p className="text-xs text-slate-500">{company.website?.replace("https://", "")}</p>
-                    </div>
-                  </Link>
-                </td>
-                <td className="px-6 py-4">
-                  <Link to={`/company/${company._id}`} className="flex items-center gap-3 group">
-                    {/* ... your icon code ... */}
-                    <div>
-                      <p className="font-medium text-slate-900 group-hover:text-indigo-600 transition-colors">{company.name}</p>
-                      {/* Show a snippet of the AI summary/notes here */}
-                      <p className="text-[10px] text-slate-400 line-clamp-1 max-w-[200px]">
-                        {company.summary || company.website?.replace("https://", "")}
-                      </p>
                     </div>
                   </Link>
                 </td>
